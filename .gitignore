@@ -1,0 +1,32 @@
+# .gitignore for Requests Hub
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+.venv/
+venv/
+
+# Node
+node_modules/
+build/
+dist/
+
+# VSCode
+.vscode/
+
+# Docker
+*.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporal
+.temporalio/
+
+# Misc
+*.log

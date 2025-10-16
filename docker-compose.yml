@@ -1,0 +1,77 @@
+#  psql:
+#    image: postgres:15
+#    command: sleep infinity
+#    depends_on:
+#      - db
+#    networks:
+#      - backend
+services:
+  api:
+    build: ./api
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://fastorc:fastorcpass@db:5432/fastorc
+      - TEMPORAL_ADDRESS=temporal:7233
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - temporal
+    networks:
+      - backend
+  worker:
+    build: ./worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://fastorc:fastorcpass@db:5432/fastorc
+      - TEMPORAL_ADDRESS=temporal:7233
+    depends_on:
+      - api
+      - temporal
+    restart: on-failure
+    networks:
+      - backend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - frontend
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: fastorc
+      POSTGRES_PASSWORD: fastorcpass
+      POSTGRES_DB: fastorc
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+  temporal:
+    image: temporalio/auto-setup:1.23
+    environment:
+      - DB=postgresql
+      - POSTGRES_USER=fastorc
+      - POSTGRES_PWD=fastorcpass
+      - POSTGRES_SEEDS=db
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+    ports:
+      - "7233:7233"
+    depends_on:
+      - db
+    networks:
+      - backend
+  psql:
+    image: postgres:15
+    command: sleep infinity
+    depends_on:
+      - db
+    networks:
+      - backend
+volumes:
+  pgdata:
+networks:
+  backend:
+  frontend:
