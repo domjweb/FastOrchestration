@@ -19,7 +19,7 @@ type Event = {
   requestId: number;
 };
 
-const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+const API_URL = "https://fastorc-api.jollysea-6795d3c4.eastus.azurecontainerapps.io/api";
 
 function App() {
   const [requests, setRequests] = useState<Request[]>([]);
