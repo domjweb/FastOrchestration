@@ -32,6 +32,10 @@ jobs:
         run: |
           cd api
           pip install -r requirements.txt
+
+      - name: Install Python tools for linting
+        run: |
+          pip install ruff black mypy
       - name: Lint backend
         run: |
           cd api
