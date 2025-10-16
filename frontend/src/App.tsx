@@ -19,7 +19,7 @@ type Event = {
   requestId: number;
 };
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 function App() {
   const [requests, setRequests] = useState<Request[]>([]);
