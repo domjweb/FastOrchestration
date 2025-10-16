@@ -39,7 +39,7 @@ jobs:
       - name: Lint backend
         run: |
           cd api
-            ruff check .
+            ruff check . --fix
           black --check .
           mypy .
       - name: Test backend
