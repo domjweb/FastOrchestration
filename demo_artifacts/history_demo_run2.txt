@@ -1,0 +1,90 @@
+   1  WorkflowExecutionStarted  {WorkflowType:{Name:RequestWorkflow},                                 
+                                ParentInitiatedEventId:0, TaskQueue:{Name:requests-hub,               
+                                Kind:Normal}, Input:[["req-demo-2",0]],                               
+                                WorkflowExecutionTimeout:0s, WorkflowRunTimeout:0s,                   
+                                WorkflowTaskTimeout:10s, Initiator:Unspecified,                       
+                                OriginalExecutionRunId:333fb281-783d-431b-b738-ab7c32ccdcfb,          
+                                Identity:tctl@536174cba8e1,                                           
+                                FirstExecutionRunId:333fb281-783d-431b-b738-ab7c32ccdcfb,             
+                                Attempt:1, FirstWorkflowTaskBackoff:0s,                               
+                                ParentInitiatedEventVersion:0}                                        
+   2  WorkflowTaskScheduled     {TaskQueue:{Name:requests-hub,                                        
+                                Kind:Normal},                                                         
+                                StartToCloseTimeout:10s,                                              
+                                Attempt:1}                                                            
+   3  WorkflowTaskStarted       {ScheduledEventId:2, Identity:1@47a7ace018b9,                         
+                                RequestId:c88e88da-3c7e-4f65-a973-042c73932fbb,                       
+                                SuggestContinueAsNew:false,                                           
+                                HistorySizeBytes:289}                                                 
+   4  WorkflowTaskCompleted     {ScheduledEventId:2, StartedEventId:3, Identity:1@47a7ace018b9,       
+                                WorkerVersioningId:{WorkerBuildId:a7351c9b8f98890f1ece0f14a6f9528f},  
+                                SdkMetadata:{CoreUsedFlags:[1,...2 more], LangUsedFlags:[]},          
+                                MeteringMetadata:{NonfirstLocalActivityExecutionAttempts:0}}          
+   5  ActivityTaskScheduled     {ActivityId:1,                                                        
+                                ActivityType:{Name:validate_request},                                 
+                                TaskQueue:{Name:requests-hub,                                         
+                                Kind:Normal},                                                         
+                                Input:[["req-demo-2",0]],                                             
+                                ScheduleToCloseTimeout:0s,                                            
+                                ScheduleToStartTimeout:0s,                                            
+                                StartToCloseTimeout:30s,                                              
+                                HeartbeatTimeout:0s,                                                  
+                                WorkflowTaskCompletedEventId:4,                                       
+                                RetryPolicy:{InitialInterval:1s,                                      
+                                BackoffCoefficient:2,                                                 
+                                MaximumInterval:1m40s,                                                
+                                MaximumAttempts:0,                                                    
+                                NonRetryableErrorTypes:[]}}                                           
+   6  ActivityTaskStarted       {ScheduledEventId:5, Identity:1@47a7ace018b9,                         
+                                RequestId:04956a76-bcbc-47f6-a748-d7ba97a22213,                       
+                                Attempt:1}                                                            
+   7  ActivityTaskCompleted     {Result:[true],                                                       
+                                ScheduledEventId:5,                                                   
+                                StartedEventId:6,                                                     
+                                Identity:1@47a7ace018b9}                                              
+   8  WorkflowTaskScheduled     {TaskQueue:{Name:1@47a7ace018b9-4d51c60b3ba64bf8854d6156781a9909,     
+                                Kind:Sticky}, StartToCloseTimeout:10s, Attempt:1}                     
+   9  WorkflowTaskStarted       {ScheduledEventId:8, Identity:1@47a7ace018b9,                         
+                                RequestId:34ea323f-4731-4e85-ade7-9f57b4b6646f,                       
+                                SuggestContinueAsNew:false,                                           
+                                HistorySizeBytes:883}                                                 
+  10  WorkflowTaskCompleted     {ScheduledEventId:8, StartedEventId:9, Identity:1@47a7ace018b9,       
+                                WorkerVersioningId:{WorkerBuildId:a7351c9b8f98890f1ece0f14a6f9528f},  
+                                SdkMetadata:{CoreUsedFlags:[], LangUsedFlags:[]},                     
+                                MeteringMetadata:{NonfirstLocalActivityExecutionAttempts:0}}          
+  11  ActivityTaskScheduled     {ActivityId:2,                                                        
+                                ActivityType:{Name:notify},                                           
+                                TaskQueue:{Name:requests-hub,                                         
+                                Kind:Normal},                                                         
+                                Input:[["slack","Created                                              
+                                request"]],                                                           
+                                ScheduleToCloseTimeout:0s,                                            
+                                ScheduleToStartTimeout:0s,                                            
+                                StartToCloseTimeout:30s,                                              
+                                HeartbeatTimeout:0s,                                                  
+                                WorkflowTaskCompletedEventId:10,                                      
+                                RetryPolicy:{InitialInterval:1s,                                      
+                                BackoffCoefficient:2,                                                 
+                                MaximumInterval:1m40s,                                                
+                                MaximumAttempts:0,                                                    
+                                NonRetryableErrorTypes:[]}}                                           
+  12  ActivityTaskStarted       {ScheduledEventId:11, Identity:1@47a7ace018b9,                        
+                                RequestId:da4d4da8-7aaf-4765-b16b-b38a3aaa1faf,                       
+                                Attempt:1}                                                            
+  13  ActivityTaskCompleted     {Result:[true],                                                       
+                                ScheduledEventId:11,                                                  
+                                StartedEventId:12,                                                    
+                                Identity:1@47a7ace018b9}                                              
+  14  WorkflowTaskScheduled     {TaskQueue:{Name:1@47a7ace018b9-4d51c60b3ba64bf8854d6156781a9909,     
+                                Kind:Sticky}, StartToCloseTimeout:10s, Attempt:1}                     
+  15  WorkflowTaskStarted       {ScheduledEventId:14, Identity:1@47a7ace018b9,                        
+                                RequestId:3af755cd-00d2-4490-b9c6-5b9d23846947,                       
+                                SuggestContinueAsNew:false,                                           
+                                HistorySizeBytes:1475}                                                
+  16  WorkflowTaskCompleted     {ScheduledEventId:14, StartedEventId:15, Identity:1@47a7ace018b9,     
+                                WorkerVersioningId:{WorkerBuildId:a7351c9b8f98890f1ece0f14a6f9528f},  
+                                SdkMetadata:{CoreUsedFlags:[], LangUsedFlags:[]},                     
+                                MeteringMetadata:{NonfirstLocalActivityExecutionAttempts:0}}          
+  17  TimerStarted              {TimerId:1,                                                           
+                                StartToFireTimeout:2h0m0s,                                            
+                                WorkflowTaskCompletedEventId:16}                                      

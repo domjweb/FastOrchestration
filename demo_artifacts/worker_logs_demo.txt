@@ -1,0 +1,4 @@
+DEBUG: TEMPORAL_ADDRESS repr: 'temporal-frontend:7233'
+Worker started for task queue: requests-hub
+Validating request: ['req-demo-2', 0]
+Notify slack: Created request
