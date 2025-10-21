@@ -1,31 +1,33 @@
-#  psql:
-#    image: postgres:15
-#    command: sleep infinity
-#    depends_on:
-#      - db
-#    networks:
-#      - backend
 services:
   api:
     build: ./api
     environment:
-      - DATABASE_URL=postgresql+asyncpg://fastorc:fastorcpass@db:5432/fastorc
-      - TEMPORAL_ADDRESS=temporal:7233
+      - DATABASE_URL=postgresql+asyncpg://djw:Domjadon96@fastorc-psql2.postgres.database.azure.com:5432/postgres
+      - TEMPORAL_ADDRESS=temporal-frontend:7233
+      - COSMOS_CONN=${COSMOS_CONN:-}
+      - COSMOS_DB=${COSMOS_DB:-fastorc}
+      - COSMOS_CONTAINER=${COSMOS_CONTAINER:-audit_events}
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - temporal
+      - temporal-frontend
     networks:
       - backend
   worker:
     build: ./worker
     environment:
-      - DATABASE_URL=postgresql+asyncpg://fastorc:fastorcpass@db:5432/fastorc
-      - TEMPORAL_ADDRESS=temporal:7233
+      - DATABASE_URL=postgresql+asyncpg://djw:Domjadon96@fastorc-psql2.postgres.database.azure.com:5432/postgres
+      - TEMPORAL_ADDRESS=temporal-frontend:7233
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - COSMOS_CONN=${COSMOS_CONN:-}
+      - COSMOS_DB=${COSMOS_DB:-fastorc}
+      - COSMOS_CONTAINER=${COSMOS_CONTAINER:-audit_events}
     depends_on:
-      - api
-      - temporal
+      api:
+        condition: service_started
+      temporal-frontend:
+        condition: service_healthy
     restart: on-failure
     networks:
       - backend
@@ -37,37 +39,102 @@ services:
       - api
     networks:
       - frontend
-  db:
-    image: postgres:15
+  temporal-frontend:
+    image: temporalio/auto-setup:1.21.0
+    command: frontend start
     environment:
-      POSTGRES_USER: fastorc
-      POSTGRES_PASSWORD: fastorcpass
-      POSTGRES_DB: fastorc
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - backend
-  temporal:
-    image: temporalio/auto-setup:1.23
-    environment:
-      - DB=postgresql
-      - POSTGRES_USER=fastorc
-      - POSTGRES_PWD=fastorcpass
-      - POSTGRES_SEEDS=db
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+      - DB=postgres12
+      - POSTGRES_SEEDS=pgbouncer
+      - POSTGRES_USER=djw
+      - POSTGRES_PWD=Domjadon96
+      - DBNAME=temporal
+      - VISIBILITY_DB=temporal_visibility
+      - SQL_MAX_CONNS=1
+      - SQL_MAX_IDLE_CONNS=0
+      - SQL_VIS_MAX_CONNS=1
+      - SQL_VIS_MAX_IDLE_CONNS=0
+      - SQL_TLS_ENABLED=false
+      - LOG_LEVEL=debug
+      - TEMPORAL_CLI_ADDRESS=temporal-frontend:7233
+    # No CA mount needed for Temporal: PgBouncer handles upstream TLS
     ports:
       - "7233:7233"
-    depends_on:
-      - db
+    networks:
+      backend:
+        aliases:
+          - temporal
+    healthcheck:
+      test: ["CMD-SHELL", "tctl --address temporal-frontend:7233 namespace list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  temporal-history:
+    image: temporalio/auto-setup:1.21.0
+    command: history start
+    environment:
+      - DB=postgres12
+      - POSTGRES_SEEDS=pgbouncer
+      - POSTGRES_USER=djw
+      - POSTGRES_PWD=Domjadon96
+      - DBNAME=temporal
+      - VISIBILITY_DB=temporal_visibility
+      - SQL_MAX_CONNS=1
+      - SQL_MAX_IDLE_CONNS=0
+      - SQL_VIS_MAX_CONNS=1
+      - SQL_VIS_MAX_IDLE_CONNS=0
+      - SQL_TLS_ENABLED=false
+      - LOG_LEVEL=debug
+    # No CA mount needed for Temporal: PgBouncer handles upstream TLS
     networks:
       - backend
-  psql:
-    image: postgres:15
-    command: sleep infinity
-    depends_on:
-      - db
+  temporal-matching:
+    image: temporalio/auto-setup:1.21.0
+    command: matching start
+    environment:
+      - DB=postgres12
+      - POSTGRES_SEEDS=pgbouncer
+      - POSTGRES_USER=djw
+      - POSTGRES_PWD=Domjadon96
+      - DBNAME=temporal
+      - VISIBILITY_DB=temporal_visibility
+      - SQL_MAX_CONNS=1
+      - SQL_MAX_IDLE_CONNS=0
+      - SQL_VIS_MAX_CONNS=1
+      - SQL_VIS_MAX_IDLE_CONNS=0
+      - SQL_TLS_ENABLED=false
+      - LOG_LEVEL=debug
+    # No CA mount needed for Temporal: PgBouncer handles upstream TLS
+    networks:
+      - backend
+  temporal-worker:
+    image: temporalio/auto-setup:1.21.0
+    command: worker start
+    environment:
+      - DB=postgres12
+      - POSTGRES_SEEDS=pgbouncer
+      - POSTGRES_USER=djw
+      - POSTGRES_PWD=Domjadon96
+      - DBNAME=temporal
+      - VISIBILITY_DB=temporal_visibility
+      - SQL_MAX_CONNS=1
+      - SQL_MAX_IDLE_CONNS=0
+      - SQL_VIS_MAX_CONNS=1
+      - SQL_VIS_MAX_IDLE_CONNS=0
+      - SQL_TLS_ENABLED=false
+      - LOG_LEVEL=debug
+    networks:
+      - backend
+  pgbouncer:
+    image: edoburu/pgbouncer:1.17.0
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+      - ./azure-postgres-ca.crt:/etc/ssl/certs/azure-postgres-ca.crt:ro
+    ports:
+      - "5432:5432"
     networks:
       - backend
 volumes:
