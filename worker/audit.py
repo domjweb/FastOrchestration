@@ -137,3 +137,23 @@ async def write_audit_event(request_id: str, event_type: str, payload: dict, wor
 
     _log_structured("error", "audit_write_giveup", {"requestId": request_id, "eventType": event_type, "error": str(last_exc)})
     return {"ok": False, "reason": str(last_exc)}
+
+
+async def get_audit_events(request_id: str):
+    """Fetch all audit events for a given request_id from Cosmos DB."""
+    await _ensure_client()
+    if _container is None:
+        _log_structured("info", "audit_no_cosmos_read", {"requestId": request_id})
+        return []
+    try:
+        query = "SELECT * FROM c WHERE c.requestId = @requestId"
+        items = list(_container.query_items(
+            query=query,
+            parameters=[{"name": "@requestId", "value": request_id}],
+            enable_cross_partition_query=True
+        ))
+        _log_structured("info", "audit_read_success", {"requestId": request_id, "count": len(items)})
+        return items
+    except Exception as e:
+        _log_structured("error", "audit_read_failed", {"requestId": request_id, "error": str(e)})
+        return []
