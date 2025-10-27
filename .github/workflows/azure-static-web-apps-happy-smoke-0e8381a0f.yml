@@ -22,6 +22,51 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install backend dependencies
+        run: |
+          cd api
+          pip install -r requirements.txt
+      - name: Install Python tools for linting
+        run: |
+          pip install ruff black mypy
+      - name: Lint backend
+        run: |
+          cd api
+          ruff check . --fix
+          black --check .
+          mypy .
+      - name: Test backend
+        run: |
+          cd api
+          pytest
+      - name: Install worker dependencies
+        run: |
+          cd worker
+          pip install -r requirements.txt
+      - name: Test worker
+        run: |
+          cd worker
+          pytest
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+      - name: Lint frontend
+        run: |
+          cd frontend
+          npm run lint || true
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
